@@ -20,6 +20,14 @@ struct Question{
 };
 
 
+//--------------------Structure for Section--------------------------------------
+struct section_structure{
+    int sec_id, sec_mark;
+    string sec_name;
+};
+
+
+
 //---------------------Blueprint Structure---------------------------------------
 struct qblueprint{
     int tot_mark,dur;
@@ -28,11 +36,7 @@ struct qblueprint{
     vector<section_structure> sec;
 };
 
-//--------------------Structure for Section--------------------------------------
-struct section_structure{
-    int sec_id, sec_mark;
-    string sec_name;
-};
+
 
 //-------------------Structure of Subject---------------------------------------
 struct subject_structure{
@@ -42,26 +46,40 @@ struct subject_structure{
 
 
 
+//-------------------Structure of Exam Schedule---------------------------------
+struct exam_schedule{
+    string exam_id;
+    int sub_code;
+    string paper_ref;
+    string exam_date;
+    string exam_time;
+    string venue;
+};
+
+
+
 class Blueprint{
     vector<qblueprint> bluep; //-----blueprint as a rec
-    vector<section_structure> sec_struct; // -----section structure as a rec=> to be stored in blueprint
+    vector<section_structure> sec_struct; // -----section structure as a rec => to be stored in blueprint
     qblueprint b;
 
     public:
     //-----------------create blueprint-----------------
         void createBlueprint(){
+            b.sec.clear();
             cout<<"Enter the total marks: ";
             cin>>b.tot_mark;
             cout<<"Enter the total duration: ";
             cin>>b.dur;
             cout<<"Enter the unit coverage: ";
+            cin.ignore(1000,'\n');
             getline(cin,b.u_cov);
             cout<<"Section Structure\n";
             cout<<"Enter the number of sections: ";
             int n;
             cin>>n;
             for(int i=0;i<n;i++){
-                b.sec.push_back(createSection());
+                b.sec.push_back(createSection()); // =>dont forget to add clear 
             }
             cout<<"Enter the difficulty level: ";
             cin>>b.diff;
@@ -75,7 +93,8 @@ class Blueprint{
             cout<<"Enter the section ID: ";
             cin>>s.sec_id;
             cout<<"Enter the section name: ";
-            cin>>s.sec_name;
+            cin.ignore(1000,'\n');
+            getline(cin,s.sec_name);
             cout<<"Enter the section marks: ";
             cin>>s.sec_mark;
             cout<<"Section details added Successfully!"<<endl;
@@ -83,11 +102,22 @@ class Blueprint{
         }
         //------------------display blueprint-----------------
         void displayBlueprint(){
-            cout<<string(20,'-')<<endl;
-            cout<<string(18,' ')<<"Total Marks: "<<b.tot_mark<<endl;
-            cout<<string(18,' ')<<"Total Duration: "<<b.dur<<endl;
-            cout<<string(10,' ')<<"Unit Coverage: "<<b.u_cov<<endl;
-            cout<<string(2,'\n');
+            if(bluep.empty()){
+                cout<<"\nNo blueprints found!\n";
+                return;
+            }
+            for(size_t i=0;i<bluep.size();i++){
+                const auto &bp = bluep[i];
+                cout<<string(20,'-')<<endl;
+                cout<<string(18,' ')<<"Total Marks: "<<bp.tot_mark<<endl;
+                cout<<string(18,' ')<<"Total Duration: "<<bp.dur<<endl;
+                cout<<string(10,' ')<<"Unit Coverage: "<<bp.u_cov<<endl;
+                cout<<string(10,' ')<<"Difficulty Level: "<<bp.diff<<endl;
+                for(const auto &s : bp.sec){
+                    cout<<string(10,' ')<<"Section ["<<s.sec_id<<"] "<<s.sec_name<<" ("<<s.sec_mark<<" marks)\n";
+                }
+                cout<<string(2,'\n');
+            }
         }    
             
 };
@@ -104,16 +134,75 @@ class Subject{
             cout<<"Enter the Subject Code: ";
             cin>>s.sub_code;
             cout<<"Enter the Subject Title: ";
-            cin>>s.sub_title;
+            cin.ignore(1000,'\n');
+            getline(cin,s.sub_title);
             cout<<"Enter the Semester: ";
             cin>>s.sem;
             cout<<"Enter the number of Units: ";
-            cin>>s.s_unit;
+            cin.ignore(1000,'\n');
+            getline(cin,s.s_unit);
             cout<<"Enter the Course Outcomes: ";
-            cin>>s.s_co;
+            getline(cin,s.s_co);
             sub.push_back(s);
+            cout<<"Subject added Successfully!\n";
         }
 
+};
+
+
+
+
+
+
+
+
+
+
+
+
+//-------------------------------Exam Schedule Class------------------------------------------
+class ExamSchedule{
+    vector<exam_schedule> schedules;
+    public:
+        //-----------------add exam schedule-----------------
+        void addSchedule(){
+            exam_schedule es;
+            cout<<"Enter Exam ID: ";
+            cin>>es.exam_id;
+            cout<<"Enter Subject Code: ";
+            cin>>es.sub_code;
+            cout<<"Enter Assigned Paper Reference: ";
+            cin.ignore(1000,'\n');
+            getline(cin,es.paper_ref);
+            cout<<"Enter Exam Date: ";
+            getline(cin,es.exam_date);
+            cout<<"Enter Exam Time: ";
+            getline(cin,es.exam_time);
+            cout<<"Enter Venue: ";
+            getline(cin,es.venue);
+            schedules.push_back(es);
+            cout<<"\nExam schedule added Successfully!\n";
+        }
+
+        //-----------------display exam schedules-----------------
+        void displaySchedules(){
+            if(schedules.empty()){
+                cout<<"\nNo exam schedules found!\n";
+                return;
+            }
+            for(size_t i=0;i<schedules.size();i++){
+                const auto &es = schedules[i];
+                cout<<string(25,'-')<<endl;
+                cout<<"Schedule #"<<(i+1)<<endl;
+                cout<<"Exam ID: "<<es.exam_id<<endl;
+                cout<<"Subject Code: "<<es.sub_code<<endl;
+                cout<<"Paper Reference: "<<es.paper_ref<<endl;
+                cout<<"Exam Date: "<<es.exam_date<<endl;
+                cout<<"Exam Time: "<<es.exam_time<<endl;
+                cout<<"Venue: "<<es.venue<<endl;
+                cout<<string(25,'-')<<endl;
+            }
+        }
 };
 
 
@@ -150,6 +239,7 @@ class qEdit : public Question_bank{
         }else{
             Id.push_back(a.qid);
             cout<<"Enter Question Text: ";
+            cin.ignore(1000,'\n');
             getline(cin,a.qtext);
             cout<<"Enter Question Type: ";
             getline(cin,a.qtype);
@@ -162,7 +252,8 @@ class qEdit : public Question_bank{
             cout<<"Enter outcome: ";
             cin>>a.qOut;
             cout<<"Enter Reference answer: ";
-            cin>>a.qRef;
+            cin.ignore(1000,'\n');
+            getline(cin,a.qRef);
             
             cout<<"\nQuestion Added Successfully!";
             Qrec.push_back(a);
@@ -177,6 +268,7 @@ class qEdit : public Question_bank{
         for(auto &q : Qrec){
             if(q.qid == id){
                 cout<<"Enter new question text: ";
+                cin.ignore(1000,'\n');
                 getline(cin,q.qtext);
                 cout<<"Enter new question type: ";
                 getline(cin,q.qtype);
@@ -189,7 +281,8 @@ class qEdit : public Question_bank{
                 cout<<"Enter new outcome: ";
                 cin>>q.qOut;
                 cout<<"Enter new reference answer: ";
-                cin>>q.qRef;
+                cin.ignore(1000,'\n');
+                getline(cin,q.qRef);
                 cout<<"\nQuestion edited successfully!";
                 return;
             }
@@ -261,13 +354,45 @@ class qEdit : public Question_bank{
     }
 };
 
+//-------------------------------Main Function------------------------------------------------
+int main(){
+    Subject subj;
+    Blueprint bp;
+    qEdit qbank;
+    ExamSchedule sched;
+    int choice;
 
+    do{
+        cout<<"\n--- Examination & Question Bank Management System ---\n";
+        cout<<"1. Add Subject\n";
+        cout<<"2. Create Blueprint\n";
+        cout<<"3. Display Blueprints\n";
+        cout<<"4. Add Question\n";
+        cout<<"5. Edit Question\n";
+        cout<<"6. Search Question\n";
+        cout<<"7. Deactivate Question\n";
+        cout<<"8. Filter Questions by Difficulty\n";
+        cout<<"9. Add Exam Schedule\n";
+        cout<<"10. Display Exam Schedules\n";
+        cout<<"0. Exit\n";
+        cout<<"Enter your choice: ";
+        cin>>choice;
 
+        switch(choice){
+            case 1: subj.addSubject(); break;
+            case 2: bp.createBlueprint(); break;
+            case 3: bp.displayBlueprint(); break;
+            case 4: qbank.Add(); break;
+            case 5: qbank.Edit(); break;
+            case 6: qbank.Search(); break;
+            case 7: qbank.Deactivate(); break;
+            case 8: qbank.Filter(); break;
+            case 9: sched.addSchedule(); break;
+            case 10: sched.displaySchedules(); break;
+            case 0: cout<<"Exiting...\n"; break;
+            default: cout<<"Invalid choice! Please try again.\n"; break;
+        }
+    }while(choice != 0);
 
-
-
-
-
-
-
-
+    return 0;
+}
