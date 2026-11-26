@@ -3,7 +3,10 @@
 #include <algorithm>
 #include <string>
 #include <vector>
+#include <fstream>
 using namespace std;
+
+
 
 
 //-------------------Question record structure---------------------------------
@@ -66,6 +69,7 @@ class Blueprint{
     public:
     //-----------------create blueprint-----------------
         void createBlueprint(){
+            ofstream bluepfile("Blueprint.txt", ios::app);
             b.sec.clear();
             cout<<"Enter the total marks: ";
             cin>>b.tot_mark;
@@ -82,9 +86,15 @@ class Blueprint{
                 b.sec.push_back(createSection()); // =>dont forget to add clear 
             }
             cout<<"Enter the difficulty level: ";
-            cin>>b.diff;
+            cin.ignore(1000,'\n');
+            getline(cin,b.diff);
             cout<<"Blueprint details added Successfully!"<<endl;
             bluep.push_back(b);
+            bluepfile<<b.tot_mark<<"|"<<b.dur<<"|"<<b.u_cov<<"|"<<b.diff<<endl;
+            for(const auto &s : b.sec){
+                bluepfile<<s.sec_id<<"|"<<s.sec_name<<"|"<<s.sec_mark<<endl;
+            }
+            bluepfile.close();
         }
 
         //------------------create section structure-----------------
@@ -130,6 +140,7 @@ class Subject{
     vector<subject_structure> sub;
     public:
         void addSubject(){
+            ofstream subfile("Subject.txt", ios::app);
             subject_structure s;
             cout<<"Enter the Subject Code: ";
             cin>>s.sub_code;
@@ -143,6 +154,8 @@ class Subject{
             getline(cin,s.s_unit);
             cout<<"Enter the Course Outcomes: ";
             getline(cin,s.s_co);
+            subfile<<s.sub_code<<"|"<<s.sub_title<<"|"<<s.sem<<"|"<<s.s_unit<<"|"<<s.s_co<<endl;
+            subfile.close();
             sub.push_back(s);
             cout<<"Subject added Successfully!\n";
         }
@@ -166,6 +179,7 @@ class ExamSchedule{
     public:
         //-----------------add exam schedule-----------------
         void addSchedule(){
+            ofstream examsche("ExamSchedule.txt",ios::app);
             exam_schedule es;
             cout<<"Enter Exam ID: ";
             cin>>es.exam_id;
@@ -180,6 +194,8 @@ class ExamSchedule{
             getline(cin,es.exam_time);
             cout<<"Enter Venue: ";
             getline(cin,es.venue);
+            examsche<<es.exam_id<<" | "<<es.sub_code<<" | "<<es.paper_ref<<" | "<<es.exam_date<<" | "<<es.exam_time<<" | "<<es.venue<<endl;
+            examsche.close();
             schedules.push_back(es);
             cout<<"\nExam schedule added Successfully!\n";
         }
@@ -216,6 +232,7 @@ class ExamSchedule{
 
 
 
+
 //---------------Master Question bank class------------------------------------------------------------------
 class Question_bank{
     protected:
@@ -237,6 +254,7 @@ class qEdit : public Question_bank{
         if((find(Id.begin(),Id.end(),a.qid))!=Id.end()){
             cout<<"\nDuplicate Question ID!";
         }else{
+            ofstream Qp("Question_bank.txt", ios::app);
             Id.push_back(a.qid);
             cout<<"Enter Question Text: ";
             cin.ignore(1000,'\n');
@@ -246,17 +264,20 @@ class qEdit : public Question_bank{
             cout<<"Enter Mark: ";
             cin>>a.qmark;
             cout<<"Enter Question Difficulty level: ";
-            cin>>a.qDiff;
+            cin.ignore(1000,'\n');
+            getline(cin,a.qDiff);
             cout<<"Enter Question Unit: ";
             cin>>a.qunit;
             cout<<"Enter outcome: ";
-            cin>>a.qOut;
-            cout<<"Enter Reference answer: ";
             cin.ignore(1000,'\n');
+            getline(cin,a.qOut);
+            cout<<"Enter Reference answer: ";
             getline(cin,a.qRef);
-            
+            a.active = true;
+            Qp<<a.qid<<"|"<<a.qtext<<"|"<<a.qtype<<"|"<<a.qmark<<"|"<<a.qDiff<<"|"<<a.qunit<<"|"<<a.qOut<<"|"<<a.qRef<<"|"<<a.active<<endl;
             cout<<"\nQuestion Added Successfully!";
             Qrec.push_back(a);
+            Qp.close();
             break;
         }
         }
@@ -275,14 +296,20 @@ class qEdit : public Question_bank{
                 cout<<"Enter new mark: ";
                 cin>>q.qmark;
                 cout<<"Enter new question difficulty level: ";
-                cin>>q.qDiff;
+                cin.ignore(1000,'\n');
+                getline(cin,q.qDiff);
                 cout<<"Enter new question unit: ";
                 cin>>q.qunit;
                 cout<<"Enter new outcome: ";
-                cin>>q.qOut;
-                cout<<"Enter new reference answer: ";
                 cin.ignore(1000,'\n');
+                getline(cin,q.qOut);
+                cout<<"Enter new reference answer: ";
                 getline(cin,q.qRef);
+                ofstream Qp("Question_bank.txt");
+                for(const auto &ques : Qrec){ //------------------------------For adding all other records into the file(opened in write mode)-----------------------------
+                    Qp<<ques.qid<<"|"<<ques.qtext<<"|"<<ques.qtype<<"|"<<ques.qmark<<"|"<<ques.qDiff<<"|"<<ques.qunit<<"|"<<ques.qOut<<"|"<<ques.qRef<<"|"<<ques.active<<endl;
+                }
+                Qp.close();
                 cout<<"\nQuestion edited successfully!";
                 return;
             }
@@ -324,7 +351,12 @@ class qEdit : public Question_bank{
                     return;
                 }
                 q.active = false;
+                ofstream Qp("Question_bank.txt");
+                for(const auto &ques : Qrec){ //------------------------------For adding all other records into the file(opened in write mode)-----------------------------
+                    Qp<<ques.qid<<"|"<<ques.qtext<<"|"<<ques.qtype<<"|"<<ques.qmark<<"|"<<ques.qDiff<<"|"<<ques.qunit<<"|"<<ques.qOut<<"|"<<ques.qRef<<"|"<<ques.active<<endl;
+                }
                 cout<<"\nQuestion deactivated successfully!";
+                Qp.close();
                 return;
             }
         }
@@ -335,7 +367,8 @@ class qEdit : public Question_bank{
     void Filter(){
         string diff;
         cout<<"Enter difficulty level to filter: ";
-        cin>>diff;
+        cin.ignore(1000,'\n');
+        getline(cin,diff);
         cout<<"\nQuestions with difficulty level "<<diff<<":\n";
         for(const auto &q : Qrec){
             if(q.qDiff == diff){
