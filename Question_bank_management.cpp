@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <string>
 #include <vector>
+#include <map>
 #include <fstream>
 using namespace std;
 
@@ -219,6 +220,21 @@ class ExamSchedule{
                 cout<<string(25,'-')<<endl;
             }
         }
+        //-----------------exam timetable report------------------------------------------------------------
+        void timetableReport(){
+            if(schedules.empty()){
+                cout<<"\nNo exam schedules found to generate report!\n";
+                return;
+            }
+
+            cout<<"\n================ EXAM TIMETABLE REPORT ================\n";
+            for(size_t i = 0; i < schedules.size(); i++){
+                const auto &es = schedules[i];
+                cout<<(i + 1)<<". Exam ID: "<<es.exam_id<<" | Subject: "<<es.sub_code<<" | Date: "<<es.exam_date<<" | Time: "<<es.exam_time<<" | Venue: "<<es.venue<<" | Paper: "<<es.paper_ref<<endl;
+            }
+            cout<<"Total Scheduled Exams: "<<schedules.size()<<endl;
+            cout<<"=======================================================\n";
+        }
 };
 
 
@@ -384,8 +400,72 @@ class qEdit : public Question_bank{
                 cout<<"\n";
             }
         }
+    
     }
+
+    //-----------------generate coverage & usage report-----------------
+    void Report(){
+        if(Qrec.empty()){
+            cout<<"\nNo question records found to generate report!\n";
+            return;
+        }
+
+        int activeCnt = 0, inactiveCnt = 0, totalMarks = 0;
+        map<int, int> unitQuestions;
+        map<int, int> unitMarks;
+        map<string, int> outcomeCount;
+        map<string, int> diffCount;
+
+        for(const auto &q : Qrec){
+            totalMarks += q.qmark;
+            if(q.active) activeCnt++;
+            else inactiveCnt++;
+
+            unitQuestions[q.qunit]++;
+            unitMarks[q.qunit] += q.qmark;
+            outcomeCount[q.qOut]++;
+            diffCount[q.qDiff]++;
+        }
+
+        cout<<"\n================ QUESTION BANK REPORT ================\n";
+        cout<<"Total Questions   : "<<Qrec.size()<<endl;
+        cout<<"Active Questions  : "<<activeCnt<<endl;
+        cout<<"Inactive Questions: "<<inactiveCnt<<endl;
+        cout<<"Total Marks       : "<<totalMarks<<endl;
+
+        cout<<"\n--- Unit Coverage ---\n";
+        for(const auto &u : unitQuestions){
+            cout<<"Unit "<<u.first<<" -> Questions: "<<u.second
+                <<", Marks: "<<unitMarks[u.first]<<endl;
+        }
+
+        cout<<"\n--- Outcome Coverage ---\n";
+        for(const auto &o : outcomeCount){
+            cout<<"Outcome ["<<o.first<<"] -> Questions: "<<o.second<<endl;
+        }
+
+        cout<<"\n--- Difficulty Distribution ---\n";
+        for(const auto &d : diffCount){
+            cout<<"Difficulty ["<<d.first<<"] -> Questions: "<<d.second<<endl;
+        }
+        cout<<"======================================================\n";
+    }
+
+
+
+
+
+
+
 };
+
+
+
+
+
+
+
+
 
 //-------------------------------Main Function------------------------------------------------
 int main(){
@@ -407,6 +487,8 @@ int main(){
         cout<<"8. Filter Questions by Difficulty\n";
         cout<<"9. Add Exam Schedule\n";
         cout<<"10. Display Exam Schedules\n";
+        cout<<"11. Question Bank & Coverage Report\n";
+        cout<<"12. Exam Timetable Report\n";
         cout<<"0. Exit\n";
         cout<<"Enter your choice: ";
         cin>>choice;
@@ -422,6 +504,8 @@ int main(){
             case 8: qbank.Filter(); break;
             case 9: sched.addSchedule(); break;
             case 10: sched.displaySchedules(); break;
+            case 11: qbank.Report(); break;
+            case 12: sched.timetableReport(); break;
             case 0: cout<<"Exiting...\n"; break;
             default: cout<<"Invalid choice! Please try again.\n"; break;
         }
